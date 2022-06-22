@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "firebase": "^9.8.3",
-    "svelte-routing": "^1.6.0"
+    "svelte-routing": "^1.6.0",
+    "uuid": "^8.3.2"
   }
 }
