@@ -1,20 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import app, { getUser, getUserByOpenid, getUsers, onUserChanged, setUser, signIn } from './lib/firebase';
+  import { Router, Route } from 'svelte-routing';
 
-  import { Router, Link, Route } from 'svelte-routing';
-  import Home from './pages/Home.svelte'
+  import store from './store';
+  import db from './lib/db';
+  import auth from './lib/auth';
+  import HomePage from './pages/HomePage.svelte'
+  import UserPage from './pages/UserPage.svelte';
   
   export let url = '';
 
   onMount(() => {
-    onUserChanged(user => {
-      console.log('user', user)
+    auth.onUserChanged(async (user) => {
       if(user === null) {
-        // signIn();
+        store.setCurrentUser(null);
         return;
       }
-      setUser({
+      const signed = await db.setUser({
         email: user.email,
         name: user.displayName,
         provider: user.providerData[0].providerId,
@@ -23,14 +25,7 @@
         uid: user.uid
       })
 
-      getUser(user.uid).then(result => {
-        console.log('result', result)
-        if(result?.openid) {
-          getUserByOpenid(result.openid).then(resultByOpenid => {
-            console.log('resultByOpenid', resultByOpenid)
-          })
-        }
-      })
+      store.setCurrentUser(signed);
     })
 
   })
@@ -38,11 +33,12 @@
 
 <h1>App</h1>
 
-
-
 <Router url="{url}">
   <div>
-    <Route path="/" component="{Home}" />
+    <Route path="/:openid" let:params>
+      <UserPage openid="{params.openid}" />
+    </Route>
+    <Route path="/" component="{HomePage}" />
   </div>
 </Router>
 
