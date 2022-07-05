@@ -11,7 +11,7 @@ const _state: DbState = {
   db: getFirestore(firebaseApp)
 }
 
-type UserData = {
+export type UserData = {
   email: string
   name: string
   provider: string
@@ -21,13 +21,16 @@ type UserData = {
   openid?: string
 }
 
-type LinkReviewData = {
+export type LinkReviewData = {
   id: string
   userId: string
   url: string
   title: string
   content: string
+  createdAt: string
 }
+
+export type LinkReviewSetData = Omit<LinkReviewData, 'id' | 'createdAt'> & { id?: string }
 
 type DbData = {
   users: UserData
@@ -93,18 +96,22 @@ const db = {
   async getLinkReviews(userId: string) {
     const q = query(collection(_state.db, 'linkReviews'), where('userId', '==', userId))
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()})) as LinkReviewData[];
   },
 
-  async setLinkReview(linkReviewData: Omit<LinkReviewData, 'id'> & { id?: string }) {
+  async setLinkReview(linkReviewData: LinkReviewSetData) {
     if(!_state.db) {
       return;
     }
 
     const { id, ...data } = linkReviewData;
+    const now = new Date();
+    const params = id
+      ? data
+      : { ...data, createdAt: now.toISOString(), createdTimestamp: now.getTime() }
 
     const linkReviewRef = doc(_state.db, 'linkReviews', id ?? shortUuid.generate())
-    await setDoc(linkReviewRef, data);
+    await setDoc(linkReviewRef, params);
   }
 }
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Router, Route } from 'svelte-routing';
+  import { QueryClient, QueryClientProvider } from '@sveltestack/svelte-query';
 
   import store from './store';
   import db from './lib/db';
@@ -9,6 +10,8 @@
   import UserPage from './pages/UserPage.svelte';
   
   export let url = '';
+
+  const queryClient = new QueryClient();
 
   onMount(() => {
     auth.onUserChanged(async (user) => {
@@ -31,16 +34,16 @@
   })
 </script>
 
-<h1>App</h1>
-
-<Router url="{url}">
-  <div>
-    <Route path="/:openid" let:params>
-      <UserPage openid="{params.openid}" />
-    </Route>
-    <Route path="/" component="{HomePage}" />
-  </div>
-</Router>
+<QueryClientProvider client={queryClient}>
+  <Router url="{url}">
+    <div>
+      <Route path="/:openid" let:params>
+        <UserPage openid="{params.openid}" />
+      </Route>
+      <Route path="/" component="{HomePage}" />
+    </div>
+  </Router>
+</QueryClientProvider>
 
 <style>
   

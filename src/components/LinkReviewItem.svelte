@@ -1,16 +1,19 @@
 <script lang='ts'>
-  import db from "../lib/db";
+  import { useSetLinkReviewMutation } from "../queries/linkReviews";
 
   export let id = '';
   export let url = '';
   export let title = '';
   export let content = '';
   export let userId = '';
+  export let createdAt = '';
+  export let createdTimestamp = '';
 
   let editable = false;
+  let mutation = useSetLinkReviewMutation();
 
   function onClickSave() {
-    db.setLinkReview({
+    $mutation.mutate({
       id,
       url,
       title,
@@ -19,9 +22,16 @@
     })
   }
   
+  function disableEditable() {
+    editable = false;
+  }
+  $: if($mutation.status === 'success' ) {
+    disableEditable();
+  }
 </script>
 
 <div>
+  <div>isSuccess: {$mutation.isSuccess ? 'true' : 'false'}</div>
   <input type='checkbox' bind:checked="{editable}" >
   {#if editable}
     <div>
@@ -39,5 +49,6 @@
     <div>title: {title}</div>
     <div>content: {content}</div>
     <div>userId: {userId}</div>
+    <div>createdAt: {createdAt}</div>
   {/if}
 </div>
