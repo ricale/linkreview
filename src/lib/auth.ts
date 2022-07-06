@@ -1,4 +1,11 @@
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, User } from 'firebase/auth'
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  User,
+  signOut as signOutFromFirebase
+} from 'firebase/auth'
 
 // https://firebase.google.com/docs/auth/web/google-signin?authuser=0#web-version-9
 const _provider = new GoogleAuthProvider();
@@ -22,6 +29,10 @@ const signIn = async () => {
   }
 }
 
+const signOut = async () => {
+  await signOutFromFirebase(_auth);
+}
+
 const onUserChanged = (onChanged: (user: User) => void) => {
   onAuthStateChanged(_auth, user => {
     onChanged(user);
@@ -30,6 +41,7 @@ const onUserChanged = (onChanged: (user: User) => void) => {
 
 const auth = {
   signIn,
+  signOut,
   onUserChanged,
 }
 

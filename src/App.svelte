@@ -31,9 +31,23 @@
 
       store.setCurrentUser(signed);
     })
-
   })
+
+  function onClickSignIn() {
+    auth.signIn();
+  }
+  function onClickSignOut() {
+    auth.signOut();
+  }
 </script>
+
+{#if $store.currentUser}
+  <span on:click={onClickSignOut}>sign out</span>
+{:else if $store.currentUser === null}
+  <span on:click={onClickSignIn}>sign in</span>
+{:else}
+  <span>loading...</span>
+{/if}
 
 <QueryClientProvider client={queryClient}>
   <Router url="{url}">

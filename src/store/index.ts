@@ -9,10 +9,10 @@ type StoreState = {
     uidInProvider: string
     uid: string
     openid: string
-  }
+  } | null
 }
 
-const { subscribe, set, update } = writable<StoreState>({ currentUser: null })
+const { subscribe, set, update } = writable<StoreState>({ currentUser: undefined })
 
 const store = {
   subscribe,
