@@ -1,18 +1,49 @@
-import { useMutation, useQuery } from "@sveltestack/svelte-query";
+import { useMutation, useQuery, useQueryClient } from "@sveltestack/svelte-query";
 import type { LinkReviewData, LinkReviewSetData } from "../lib/db";
 import db from "../lib/db";
 
-export function useGetLinkReviewsQuery(userId?: string) {
+const LINK_REVIEW_KEY = 'linkReviews'
+
+export function useGetLinkReviewQuery(id: string) {
+  return useQuery<LinkReviewData>(
+    [LINK_REVIEW_KEY, id],
+    () => db.getLinkReview(id),
+    { enabled: !!id }
+  )
+}
+
+export function useGetLinkReviewsQuery(userId: string) {
   return useQuery<LinkReviewData[]>(
-    ['linkReviews', userId],
-    () => {
-      console.log('useGetLinkReviewsQuery', userId)
-      return db.getLinkReviews(userId)
-    },
+    [LINK_REVIEW_KEY, { userId }],
+    () => db.getLinkReviews(userId),
     {enabled: !!userId}
   )
 }
 
-export function useSetLinkReviewMutation() {
-  return useMutation((data: LinkReviewSetData) => db.setLinkReview(data));
+export function useSetLinkReviewMutation(userId?: string) {
+  const queryClickent = useQueryClient();
+  return useMutation(
+    (data: LinkReviewSetData) => db.setLinkReview(data),
+    {
+      onSuccess: () => {
+        queryClickent.invalidateQueries(
+          userId ? [LINK_REVIEW_KEY, userId] : LINK_REVIEW_KEY
+        )
+      }
+    }
+  );
+}
+
+export function useDeleteLinkReviewMutation(userId?: string) {
+  const queryClickent = useQueryClient();
+  return useMutation(
+    (id: string) => db.deleteLinkReview(id),
+    {
+      onSuccess: () => {
+        queryClickent.invalidateQueries(
+          userId ? [LINK_REVIEW_KEY, userId] : LINK_REVIEW_KEY
+        )
+      }
+    }
+  );
 }

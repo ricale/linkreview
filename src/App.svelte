@@ -8,6 +8,7 @@
   import auth from './lib/auth';
   import HomePage from './pages/HomePage.svelte'
   import UserPage from './pages/UserPage.svelte';
+  import LinkReviewPage from './pages/LinkReviewPage.svelte';
   
   export let url = '';
 
@@ -37,6 +38,9 @@
 <QueryClientProvider client={queryClient}>
   <Router url="{url}">
     <div>
+      <Route path="/linkReviews/:id" let:params>
+        <LinkReviewPage id="{params.id}" />
+      </Route>
       <Route path="/:openid" let:params>
         <UserPage openid="{params.openid}" />
       </Route>

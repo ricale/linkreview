@@ -1,5 +1,4 @@
 <script lang='ts'>
-  import { onMount } from "svelte";
   import LinkReviewItem from "../components/LinkReviewItem.svelte";
   import { useGetUserQuery } from "../queries/users";
   import { useGetLinkReviewsQuery, useSetLinkReviewMutation } from "../queries/linkReviews";
@@ -10,10 +9,10 @@
   let content = '';
   let url = '';
 
-  let user;
+  let user = useGetUserQuery(openid);
   $: user = useGetUserQuery(openid)
 
-  let linkReviews
+  let linkReviews = useGetLinkReviewsQuery($user.data?.uid);
   $: linkReviews = useGetLinkReviewsQuery($user.data?.uid);
 
   let mutation = useSetLinkReviewMutation();
@@ -32,10 +31,12 @@
 <h2>User</h2>
 <p>{openid}</p>
 
-<div>{$user.data?.userId}</div>
+<h3>사용자 정보</h3>
+<div>{$user.data?.uid}</div>
 <div>{$user.data?.name}</div>
 <div>{$user.data?.email}</div>
 
+<h3>작성</h3>
 <form>
   <div>
     <label for='title'>title</label>
@@ -52,6 +53,7 @@
   <button on:click={saveLink}>저장</button>
 </form>
 
+<h3>목록</h3>
 {#if !!$linkReviews.data}
 {#each $linkReviews.data as linkReview}
 <LinkReviewItem
@@ -59,3 +61,9 @@
 />
 {/each}
 {/if}
+
+<style>
+  form {
+    padding: 10px;
+  }
+</style>

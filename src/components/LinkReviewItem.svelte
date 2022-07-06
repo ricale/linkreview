@@ -1,5 +1,6 @@
 <script lang='ts'>
-  import { useSetLinkReviewMutation } from "../queries/linkReviews";
+  import { Link } from "svelte-routing";
+  import { useDeleteLinkReviewMutation, useSetLinkReviewMutation } from "../queries/linkReviews";
 
   export let id = '';
   export let url = '';
@@ -7,13 +8,14 @@
   export let content = '';
   export let userId = '';
   export let createdAt = '';
-  export let createdTimestamp = '';
+  // export let createdTimestamp = '';
 
   let editable = false;
-  let mutation = useSetLinkReviewMutation();
+  let setMutation = useSetLinkReviewMutation();
+  let delMutation = useDeleteLinkReviewMutation();
 
   function onClickSave() {
-    $mutation.mutate({
+    $setMutation.mutate({
       id,
       url,
       title,
@@ -21,34 +23,61 @@
       userId,
     })
   }
+
+  function onClickDelete() {
+    $delMutation.mutate(id)
+  }
   
   function disableEditable() {
     editable = false;
   }
-  $: if($mutation.status === 'success' ) {
+  $: if($setMutation.status === 'success' ) {
     disableEditable();
   }
 </script>
 
-<div>
-  <div>isSuccess: {$mutation.isSuccess ? 'true' : 'false'}</div>
-  <input type='checkbox' bind:checked="{editable}" >
+<div class='container'>
+  <label for='editable'>수정폼 보기</label>
+  <input id='editable' type='checkbox' bind:checked="{editable}" >
+  <button on:click={onClickDelete}>삭제</button>
   {#if editable}
-    <div>
-      <input bind:value={url} />
-    </div>
-    <div>
-      <input bind:value={title} />
-    </div>
-    <div>
-      <input bind:value={content} />
-    </div>
-    <button on:click={onClickSave}>저장</button>
+    <form>
+      <div>
+        <label for='url'>url</label>
+        <input id='url' bind:value={url} />
+      </div>
+      <div>
+        <label for='title'>title</label>
+        <input id='title' bind:value={title} />
+      </div>
+      <div>
+        <label for='content'>content</label>
+        <input id='content' bind:value={content} />
+      </div>
+      <button on:click={onClickSave}>저장</button>
+    </form>
   {:else}
-    <div>url: {url}</div>
-    <div>title: {title}</div>
-    <div>content: {content}</div>
-    <div>userId: {userId}</div>
-    <div>createdAt: {createdAt}</div>
+    <div class='contents'>
+      <h4><Link to="{`/linkReviews/${id}`}">{title}</Link></h4>
+      <div>{createdAt}</div>
+      <div>url: {url}</div>
+      <div>content: {content}</div>
+      <div>userId: {userId}</div>
+    </div>
   {/if}
 </div>
+
+<style>
+  div.container {
+    border-bottom: 1px solid #EEE;
+  }
+  form {
+    padding: 10px;
+  }
+  div.contents {
+    padding: 10px;
+  }
+  h4 {
+    margin: 0;
+  }
+</style>

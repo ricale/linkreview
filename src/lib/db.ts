@@ -1,4 +1,4 @@
-import { collection, doc, Firestore, getDoc, getDocs, getFirestore, query, setDoc, where } from 'firebase/firestore/lite'
+import { collection, deleteDoc, doc, Firestore, getDoc, getDocs, getFirestore, query, setDoc, where } from 'firebase/firestore/lite'
 import shortUuid from 'short-uuid';
 
 import firebaseApp from './firebase';
@@ -63,7 +63,7 @@ const db = {
     const userSnap = await getDoc(userRef);
 
     if(userSnap.exists()) {
-      return userSnap.data();
+      return userSnap.data() as UserData;
     } else {
       null;
     }
@@ -93,6 +93,21 @@ const db = {
     return newUser
   },
 
+  async getLinkReview(id: string) {
+    if(!_state.db) {
+      return;
+    }
+
+    const linkReviewRef = doc(_state.db, 'linkReviews', id);
+    const linkReviewSnap = await getDoc(linkReviewRef);
+
+    if(linkReviewSnap.exists()) {
+      return linkReviewSnap.data() as LinkReviewData;
+    } else {
+      null;
+    }
+  },
+
   async getLinkReviews(userId: string) {
     const q = query(collection(_state.db, 'linkReviews'), where('userId', '==', userId))
     const querySnapshot = await getDocs(q);
@@ -112,6 +127,11 @@ const db = {
 
     const linkReviewRef = doc(_state.db, 'linkReviews', id ?? shortUuid.generate())
     await setDoc(linkReviewRef, params);
+  },
+
+  async deleteLinkReview(id: string) {
+    const linkReviewRef = doc(_state.db, 'linkReviews', id);
+    await deleteDoc(linkReviewRef);
   }
 }
 
